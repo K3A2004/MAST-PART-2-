@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button, FlatList, Picker, ScrollView, Image} from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, ScrollView, Image } from 'react-native';
+import { Picker } from '@react-native-picker/picker';  
+
+interface MenuItem {
+  id: string;
+  name: string;
+  course: string;
+  description: string;
+  price: string;
+}
 
 export default function App() {
   // State for form inputs
-  const [dishName, setDishName] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [course, setCourse] = useState('starters');
-  
+  const [dishName, setDishName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [price, setPrice] = useState<string>('');
+  const [course, setCourse] = useState<string>('starters');
+
   // Preloaded menu items
-  const initialMenuItems = [
+  const initialMenuItems: MenuItem[] = [
     { id: '1', name: 'Chicken Tenders', course: 'starters', description: 'Crispy chicken strips', price: '5.99' },
     { id: '2', name: 'Mozzarella Sticks', course: 'starters', description: 'Cheese-filled sticks', price: '4.99' },
     { id: '3', name: 'Onion Rings', course: 'starters', description: 'Crispy fried onions', price: '3.99' },
@@ -29,20 +38,20 @@ export default function App() {
   ];
 
   // State to store menu items (preloaded + new ones)
-  const [menuItems, setMenuItems] = useState(initialMenuItems);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
 
   // Add item to menu
   const addMenuItem = () => {
     if (dishName && description && price) {
-      const newItem = {
+      const newItem: MenuItem = {
         id: Math.random().toString(),
         name: dishName,
         description: description,
         price: price,
-        course: course
+        course: course,
       };
-      setMenuItems([...menuItems, newItem]); // Add new item to menu
-      setDishName('');  // Clear input fields
+      setMenuItems([...menuItems, newItem]); 
+      setDishName('');  
       setDescription('');
       setPrice('');
     }
@@ -50,69 +59,68 @@ export default function App() {
 
   return (
     <ScrollView>
-    <View style={styles.container}>
-      <Text style={styles.welcomeText}>Cristoffel's Digital Menu</Text>
-      <Image
-        source={require('./img/the_bear_logo.jpeg')}
-        style={styles.image}
+      <View style={styles.container}>
+        <Text style={styles.welcomeText}>Cristoffel's Digital Menu</Text>
+        <Image
+          source={require('./img/the_bear_logo.jpeg')}
+          style={styles.image}
         />
 
+        {/* Form for adding menu item */}
+        <Text style={styles.headingText}>Dish Name:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter dish name"
+          value={dishName}
+          onChangeText={setDishName}
+        />
 
-      {/* Form for adding menu item */}
-      <Text style={styles.headingText}>Dish Name:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder='Enter dish name'
-        value={dishName}
-        onChangeText={setDishName}
-      />
+        <Text style={styles.headingText}>Description:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter description"
+          value={description}
+          onChangeText={setDescription}
+        />
 
-      <Text style={styles.headingText}>Description:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder='Enter description'
-        value={description}
-        onChangeText={setDescription}
-      />
+        <Text style={styles.headingText}>Price:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter price"
+          value={price}
+          onChangeText={setPrice}
+          keyboardType="numeric"
+        />
 
-      <Text style={styles.headingText}>Price:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder='Enter price'
-        value={price}
-        onChangeText={setPrice}
-        keyboardType='numeric'
-      />
+        <Text style={styles.headingText}>Select Course:</Text>
+        <Picker
+          selectedValue={course}
+          style={styles.picker}
+          onValueChange={(itemValue: string) => setCourse(itemValue)}  
+        >
+          <Picker.Item label="Starters" value="starters" />
+          <Picker.Item label="Mains" value="mains" />
+          <Picker.Item label="Desserts" value="desserts" />
+        </Picker>
 
-      <Text style={styles.headingText}>Select Course:</Text>
-      <Picker
-        selectedValue={course}
-        style={styles.picker}
-        onValueChange={(itemValue) => setCourse(itemValue)}
-      >
-        <Picker.Item label="Starters" value="starters" />
-        <Picker.Item label="Mains" value="mains" />
-        <Picker.Item label="Desserts" value="desserts" />
-      </Picker>
+        <Button title="Add Dish" onPress={addMenuItem} />
 
-      <Button title="Add Dish" onPress={addMenuItem} />
+        {/* Display Menu Items */}
+        <Text style={styles.menuHeading}>Menu Items ({menuItems.length})</Text>
+        <FlatList
+          data={menuItems}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.menuItem}>
+              <Text style={styles.menuItemText}>{item.name} - ${item.price}</Text>
+              <Text>{item.description}</Text>
+              <Text>Course: {item.course}</Text>
+            </View>
+          )}
+        />
 
-      {/* Display Menu Items */}
-      <Text style={styles.menuHeading}>Menu Items ({menuItems.length})</Text>
-      <FlatList
-        data={menuItems}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.menuItem}>
-            <Text style={styles.menuItemText}>{item.name} - ${item.price}</Text>
-            <Text>{item.description}</Text>
-            <Text>Course: {item.course}</Text>
-          </View>
-        )}
-      />
-
-      <StatusBar style="auto" />
-    </View>
+        <StatusBar style="auto" />
+      </View>
     </ScrollView>
   );
 }
@@ -124,12 +132,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   image: {
-    width: 150,  
-    height: 150, 
-    alignSelf: 'center',   
-    resizeMode: 'cover',  
-    marginVertical: 20,  
-    
+    width: 150,
+    height: 150,
+    alignSelf: 'center',
+    resizeMode: 'cover',
+    marginVertical: 20,
   },
   welcomeText: {
     paddingTop: 40,
@@ -171,3 +178,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
